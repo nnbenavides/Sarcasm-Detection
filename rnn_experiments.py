@@ -33,7 +33,7 @@ import torch.nn as nn
 # In[4]:
 
 
-pol_dir = '../SARC/2.0/pol'
+pol_dir = '../SARC/2.0/main'
 comments_file = os.path.join(pol_dir, 'comments.json')
 train_file = os.path.join(pol_dir, 'train-balanced.csv')
 
@@ -352,8 +352,8 @@ def fit_maxent_classifier(X, y):
 
 
 #TorchShallowNeural Classifier w/ ELMo Embeddings
-elmo_X = np.load('pol-balanced-elmo-X.npy')
-elmo_y = np.load('pol-balanced-elmo-y.npy')
+elmo_X = np.load('main-balanced-elmo-X.npy')
+elmo_y = np.load('main-balanced-elmo-y.npy')
 n = len(elmo_X)
 np.random.seed(224)
 
@@ -384,10 +384,10 @@ for i in range(len(test_indices)):
 	index_map_test[i] = test_indices[i]
 print('size of test set:', str(len(index_map_test)))
 
-hidden_dims = [50, 100, 250, 500, 1000]
+hidden_dims = [50, 100, 250, 500]
 hidden_activations = [nn.Tanh(), nn.ReLU()]
-max_iters = [100, 250, 500, 1000]
-etas = [0.1, 0.01, 0.001, 1e-4]
+max_iters = [100, 250, 500]
+etas = [0.1, 0.01, 0.001]
 n_models = len(hidden_dims)*len(hidden_activations)*len(max_iters)*len(etas)
 
 best_dim = 0
@@ -396,23 +396,27 @@ best_iters = 0
 best_eta = 0
 best_f1 = 0
 i = 0
-for dim in hidden_dims:
-	for activation in hidden_activations:
-		for iters in max_iters:
-			for eta in etas:
-				i += 1
-				model = fit_basic_rnn(elmo_X_train, elmo_y_train, dim, iters, activation, eta)
-				predictions = model.predict(elmo_X_dev)
-				report = classification_report(elmo_y_dev, predictions, output_dict = True)
-				macro_f1 = report['macro avg']['f1-score']
-				println('fit model ', str(i), ' out of ', str(n_models))
-				if macro_f1 > best_f1:
-					best_dim = dim
-					best_activation = activation
-					best_iters = iters
-					best_eta = eta
-					best_f1 = macro_f1
-print(best_f1)
+for i in range(20):
+    dim = np.random.choice(hidden_dims)
+    iters = np.random.choice(max_iters)
+    activation = np.random.choice(hidden_activations)
+    eta = np.random.choice(etas)
+    model = fit_basic_rnn(elmo_X_train, elmo_y_train, dim, iters, activation, eta)
+    predictions = model.predict(elmo_X_dev)
+    report = classification_report(elmo_y_dev, predictions, output_dict = True)
+    macro_f1 = report['macro avg']['f1-score']
+    i += 1
+    print('\nfit model ', str(i), ' out of 20')
+    if macro_f1 > best_f1:
+        best_dim = dim
+        best_activation = activation
+        best_iters = iters
+        best_eta = eta
+        best_f1 = macro_f1
+print('Best F1: ',str(best_f1))
+print('Best dim: ',str(best_dim))
+print('Best activation: ', str(best_activation))
+print('Best eta: ', str(best_eta))
 #xval_model(fit_maxent_classifier, elmo_X, elmo_y, 5)
 
 '''
