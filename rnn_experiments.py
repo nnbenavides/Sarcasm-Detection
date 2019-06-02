@@ -333,6 +333,7 @@ print('Best F1: ',str(best_f1))
 print('Best dim: ',str(best_dim))
 print('Best activation: ', str(best_activation))
 print('Best eta: ', str(best_eta))
+print('Best iters: ', str(best_iters))
 #xval_model(fit_maxent_classifier, elmo_X, elmo_y, 5)
 
 '''
