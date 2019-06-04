@@ -91,8 +91,8 @@ num_classes = 2
 batch_size = 32
 
 # Hyperparameters to experiment with
-hidden_sizes = [100, 250, 500, 1000]
-num_layers = [1, 5, 10]
+hidden_sizes = [50, 100, 250, 500]
+num_layers = [1, 3, 5]
 num_epochs = [5, 10, 20]
 learning_rates = [0.1, 0.01, 0.001]
 
