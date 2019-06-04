@@ -133,7 +133,7 @@ for i in range(25):
     # Train the model
     total_step = len(train_loader)
     for epoch in range(epochs):
-        for i, (sequences, labels) in enumerate(train_loader):
+        for j, (sequences, labels) in enumerate(train_loader):
             
             sequences = sequences.view(sequences.shape[0], input_size)#.to(device)
             labels = labels#.to(device)
