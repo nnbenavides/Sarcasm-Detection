@@ -353,3 +353,28 @@ glove_X = np.load('pol-balanced-glove-X.npy')
 glove_y = np.load('pol-balanced-glove-y.npy')
 xval_model(fit_maxent_classifier, glove_X, glove_y, 5)
 '''
+
+missed_dev_indices = []
+missed_preds = []
+for i, pred in enumerate(predictions):
+    if pred != elmo_y_dev[i]:
+        missed_dev_indices.append(i)
+        missed_preds.append(pred)
+
+num_examples_to_analyze = 200
+indices_to_analyze = np.random.choice(range(len(missed_preds)), num_examples_to_analyze, replace = False)
+for i, ind in enumerate(indices_to_analyze):
+    missed_pred = missed_preds[ind]
+    missed_og_index = index_map_dev[ind]
+    print('\nMissed Example #', str(i+1), ' of ', str(num_examples_to_analyze))
+    if missed_pred == 0: #originally predicted the first comment to be non-sarcastic
+        print('Actual non-sarcastic comment: ', responses[missed_og_index][1])
+        print('Word count: ', len((responses[missed_og_index][1]).split()))
+        print('Actual sarcastic comment: ', responses[missed_og_index][0])
+        print('Word count: ', len((responses[missed_og_index][0]).split()))
+
+    else:
+        print('Actual non-sarcastic comment: ', responses[missed_og_index][0])
+        print('Word count: ', len((responses[missed_og_index][0]).split()))
+        print('Actual sarcastic comment: ', responses[missed_og_index][1])
+        print('Word count: ', len((responses[missed_og_index][1]).split()))
