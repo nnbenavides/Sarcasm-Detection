@@ -9,6 +9,49 @@ from torch.utils import data
 import numpy as np
 from sklearn.metrics import classification_report
 from torch.autograd import Variable
+import os
+import csv
+import json
+from itertools import islice, chain
+import nltk
+from collections import Counter
+
+# Read in Data
+pol_dir = '../SARC/2.0/main'
+comments_file = os.path.join(pol_dir, 'comments.json')
+train_file = os.path.join(pol_dir, 'train-balanced.csv')
+
+with open(comments_file, 'r') as f:
+    comments = json.load(f)
+
+# Format data
+train_ancestors = []
+train_responses = []
+train_labels = []
+lower = True
+with open(train_file, 'r') as f:
+    reader = csv.reader(f, delimiter='|')
+    for row in reader:
+        ancestors = row[0].split(' ')
+        responses = row[1].split(' ')
+        labels = row[2].split(' ')
+        if lower:
+            train_ancestors.append([comments[r]['text'].lower() for r in ancestors])
+            train_responses.append([comments[r]['text'].lower() for r in responses])
+        else:
+            train_ancestors.append([comments[r]['text'] for r in ancestors])
+            train_responses.append([comments[r]['text'] for r in responses])
+        train_labels.append(labels)
+
+from collections import defaultdict
+train_vocab = defaultdict(int)
+for pair in train_responses:
+    for comment in pair:
+        for w in nltk.word_tokenize(comment):
+            train_vocab[w] += 1
+train_vocab = Counter(train_vocab)
+print(len(train_vocab))
+responses = train_responses
 
 # Device configuration
 #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -185,3 +228,29 @@ print('Best num_layers: ', str(best_layers))
 print('Best num_epochs: ', str(best_epochs))
 print('Best learning_rate: ', str(best_eta))
 torch.save(best_model.state_dict(), 'model.ckpt')
+
+missed_dev_indices = []
+missed_preds = []
+for i, pred in enumerate(preds):
+    if pred != actuals[i]:
+        missed_dev_indices.append(i)
+        missed_preds.append(pred)
+
+num_examples_to_analyze = 250
+indices_to_analyze = np.random.choice(range(len(missed_preds)), num_examples_to_analyze, replace = False)
+for i, ind in enumerate(indices_to_analyze):
+    missed_pred = missed_preds[ind]
+    print(missed_pred)
+    missed_og_index = index_map_dev[ind]
+    print('\nMissed Example #', str(i+1), ' of ', str(num_examples_to_analyze))
+    if missed_pred == 0: #originally predicted the first comment to be non-sarcastic
+        print('Actual non-sarcastic comment: ', responses[missed_og_index][1])
+        print('Word count: ', len((responses[missed_og_index][1]).split()))
+        print('Actual sarcastic comment: ', responses[missed_og_index][0])
+        print('Word count: ', len((responses[missed_og_index][0]).split()))
+
+    else:
+        print('Actual non-sarcastic comment: ', responses[missed_og_index][0])
+        print('Word count: ', len((responses[missed_og_index][0]).split()))
+        print('Actual sarcastic comment: ', responses[missed_og_index][1])
+        print('Word count: ', len((responses[missed_og_index][1]).split()))
