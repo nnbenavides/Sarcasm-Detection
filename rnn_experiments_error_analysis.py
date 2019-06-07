@@ -65,9 +65,6 @@ for i in range(N):
 	assert len(responses[i]) == 2
 	feat_dicts[0].append(phi_c(responses[i][0]))
 	feat_dicts[1].append(phi_c(responses[i][1]))
-print(responses[0])
-print(train_labels[0])
-
 
 def fit_basic_rnn(X, y, hidden_dim, max_iter, hidden_activation, eta):
 	if hidden_dim is None:
@@ -84,17 +81,16 @@ def fit_basic_rnn(X, y, hidden_dim, max_iter, hidden_activation, eta):
 	return mod
 
 
-elmo_X = np.load('pol-balanced-elmo-X.npy')
-elmo_y = np.load('pol-balanced-elmo-y.npy')
+elmo_X = np.load('main-balanced-elmo-X.npy')
+elmo_y = np.load('main-balanced-elmo-y.npy')
 n = len(elmo_X)
 
-glove_X = np.load('pol-balanced-glove-X.npy')
-glove_y = np.load('pol-balanced-glove-y.npy')
+glove_X = np.load('main-balanced-glove-X.npy')
+glove_y = np.load('main-balanced-glove-y.npy')
 np.random.seed(224)
 
 train_indices = np.random.choice(range(n), round(0.95*n), replace = False)
 train_indices_subset = np.random.choice(train_indices, round(0.95*n), replace = False)
-print(train_indices_subset)
 elmo_X_train = elmo_X[train_indices_subset]
 elmo_y_train = elmo_y[train_indices_subset]
 glove_X_train = glove_X[train_indices_subset]
@@ -109,7 +105,6 @@ elmo_y_dev = elmo_y[dev_indices]
 glove_X_dev = glove_X[dev_indices]
 glove_y_dev = glove_y[dev_indices]
 print('size of dev set:', str(len(elmo_X_dev)))
-print(dev_indices)
 
 test_indices = list(set(other_indices) - set(dev_indices))
 elmo_X_test = elmo_X[test_indices]
@@ -128,7 +123,7 @@ elmo_model = fit_basic_rnn(elmo_X_train, elmo_y_train, elmo_dim, elmo_iters, elm
 
 elmo_predictions = elmo_model.predict(elmo_X_dev)
 elmo_report = classification_report(elmo_y_dev, elmo_predictions, output_dict = True)
-elmo_macro_f1 = report['macro avg']['f1-score']
+elmo_macro_f1 = elmo_report['macro avg']['f1-score']
 print(classification_report(elmo_y_dev, elmo_predictions))
 
 # Fit Shallow RNN w/ GloVe embeddings
@@ -140,7 +135,7 @@ glove_model = fit_basic_rnn(glove_X_train, glove_y_train, glove_dim, glove_iters
 
 glove_predictions = glove_model.predict(glove_X_dev)
 glove_report = classification_report(glove_y_dev, glove_predictions, output_dict = True)
-glove_macro_f1 = report['macro avg']['f1-score']
+glove_macro_f1 = glove_report['macro avg']['f1-score']
 print(classification_report(glove_y_dev, glove_predictions))
 
 # Error Analysis
