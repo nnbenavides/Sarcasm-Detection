@@ -140,6 +140,8 @@ print(classification_report(glove_y_dev, glove_predictions))
 
 # Error Analysis
 error_analysis_examples = []
+elmo_correct = 0
+glove_correct = 0
 overlap = 0
 for i, og_ind in enumerate(dev_indices):
     elmo_pred = elmo_predictions[i]
@@ -148,25 +150,31 @@ for i, og_ind in enumerate(dev_indices):
     winner = ''
     if elmo_pred == actual and glove_pred == actual:
         overlap += 1
+        elmo_correct += 1
+        glove_correct += 1
     elif elmo_pred != actual and glove_pred != actual:
         continue
     else:
         if elmo_pred == actual and glove_pred != actual: # ELMo wins
-            winner = 'ElMo'
+            winner = 'ELMo'
+            elmo_correct += 1
         elif elmo_pred != actual and glove_pred == actual:
             winner = 'GloVe'
+            glove_correct += 1
         
         if actual == 0:
             error_analysis_examples.append((responses[og_ind][0], responses[og_ind][1], winner))
         else:
             error_analysis_examples.append((responses[og_ind][1], responses[og_ind][0], winner))
+print('Of the examples ELMo got right, GLoVe got ', str(round(100*overlap/elmo_correct, 1)), '% right.')
+print('Of the examples GloVe got right, ELMo got ', str(round(100*overlap/glove_correct, 1)), '% right.')
 overlap /= len(dev_indices)
-print('Overlap: ', round(overlap*100, 1))
-
-num_examples_to_analyze = 250
+print('Overall overlap: ', round(overlap*100, 1))
+num_examples_to_analyze = 500
 error_indices = np.random.choice(range(len(error_analysis_examples)), num_examples_to_analyze, replace = False)
 error_examples = [error_analysis_examples[i] for i in error_indices]
-for i, tup in enumerate(error_examples):
+
+for i, tup in enumerate(error_analysis_examples):#enumerate(error_examples):
     print('\nExample #', str(i+1), ' of ', str(num_examples_to_analyze))
     print('Winner: ', tup[2])
     print('Actual non-sarcastic comment: ', tup[0])
