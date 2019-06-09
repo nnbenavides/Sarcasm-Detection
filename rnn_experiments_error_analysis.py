@@ -19,7 +19,10 @@ from torch_rnn_classifier import TorchRNNClassifier
 from sklearn.linear_model import LogisticRegression
 import random
 import torch.nn as nn
-
+import seaborn as sn
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
 # Read in Data
 pol_dir = '../SARC/2.0/main'
 comments_file = os.path.join(pol_dir, 'comments.json')
@@ -126,6 +129,13 @@ elmo_report = classification_report(elmo_y_dev, elmo_predictions, output_dict = 
 elmo_macro_f1 = elmo_report['macro avg']['f1-score']
 print(classification_report(elmo_y_dev, elmo_predictions))
 
+cm=confusion_matrix(elmo_y_dev,elmo_predictions)
+df_cm = pd.DataFrame(cm, index = [i for i in ['Non-Sarcastic', 'Sarcastic']],
+                  columns = [i for i in ['Non-Sarcastic', 'Sarcastic']])
+plt.figure(figsize = (10,7))
+ax = sn.heatmap(df_cm, annot=True)
+plt.savefig("shallow_elmo_cm.png")
+
 # Fit Shallow RNN w/ GloVe embeddings
 glove_dim = 50
 glove_activation = nn.ReLU()
@@ -137,6 +147,14 @@ glove_predictions = glove_model.predict(glove_X_dev)
 glove_report = classification_report(glove_y_dev, glove_predictions, output_dict = True)
 glove_macro_f1 = glove_report['macro avg']['f1-score']
 print(classification_report(glove_y_dev, glove_predictions))
+
+cm=confusion_matrix(glove_y_dev,glove_predictions)
+df_cm = pd.DataFrame(cm, index = [i for i in ['Non-Sarcastic', 'Sarcastic']],
+                  columns = [i for i in ['Non-Sarcastic', 'Sarcastic']])
+plt.figure(figsize = (10,7))
+ax = sn.heatmap(df_cm, annot=True)
+plt.savefig("shallow_glove_cm.png")
+
 
 # Error Analysis
 error_analysis_examples = []
