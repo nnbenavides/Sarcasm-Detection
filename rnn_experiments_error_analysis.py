@@ -23,6 +23,8 @@ import seaborn as sn
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
+import utils
+
 # Read in Data
 pol_dir = '../SARC/2.0/main'
 comments_file = os.path.join(pol_dir, 'comments.json')
@@ -155,6 +157,10 @@ plt.figure(figsize = (10,7))
 ax = sn.heatmap(df_cm, annot=True)
 plt.savefig("shallow_glove_cm.png")
 
+# McNemar's Test
+m = utils.mcnemar(glove_y_dev, glove_predictions, elmo_predictions)
+p = "p < 0.0001" if m[1] < 0.0001 else m[1]
+print("McNemar's test: {0:0.02f} ({1:})".format(m[0], p))
 
 # Error Analysis
 error_analysis_examples = []
