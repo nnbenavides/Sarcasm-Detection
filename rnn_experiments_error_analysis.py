@@ -71,6 +71,7 @@ for i in range(N):
 	feat_dicts[0].append(phi_c(responses[i][0]))
 	feat_dicts[1].append(phi_c(responses[i][1]))
 
+# Fit TorchShallowNeuralClassifier
 def fit_basic_rnn(X, y, hidden_dim, max_iter, hidden_activation, eta):
 	if hidden_dim is None:
 		hidden_dim = 50
@@ -85,7 +86,7 @@ def fit_basic_rnn(X, y, hidden_dim, max_iter, hidden_activation, eta):
 	mod.fit(X, y)
 	return mod
 
-
+# Load datasets
 elmo_X = np.load('main-balanced-elmo-X.npy')
 elmo_y = np.load('main-balanced-elmo-y.npy')
 n = len(elmo_X)
@@ -94,6 +95,7 @@ glove_X = np.load('main-balanced-glove-X.npy')
 glove_y = np.load('main-balanced-glove-y.npy')
 np.random.seed(224)
 
+# Randomly split dataset into training, dev and test examples
 train_indices = np.random.choice(range(n), round(0.95*n), replace = False)
 train_indices_subset = np.random.choice(train_indices, round(0.95*n), replace = False)
 elmo_X_train = elmo_X[train_indices_subset]

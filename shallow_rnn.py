@@ -72,34 +72,6 @@ def embed_phi_c(comment, embeddings):
 def fasttext_phi_c(comment):
 	return embed_phi_c(comment, fasttext_lookup)
 
-'''
-# FastText Embeddings
-i=0
-fasttext_lookup = {}
-with open('../../static/wiki-news-300d-1M-subword.vec') as f:
-	while True:
-		try:
-			x = next(f)
-		except:
-			break
-		try:
-			fields = x.strip().split()
-			idx = fields[0]
-			if idx not in train_vocab: continue
-			if idx in fasttext_lookup:
-				print("Duplicate! ", idx)
-			vec = np.array(fields[1:], dtype=np.float32)
-			fasttext_lookup[idx] = vec
-			i += 1
-			#if i%500 == 0: print(i)
-		except:
-			pass
-
-
-#print(len(fasttext_lookup))
-#print(type(fasttext_lookup['the']), fasttext_lookup['the'].shape, sum(fasttext_lookup['the']))
-'''
-
 responses = train_responses
 phi_c = unigrams_phi_c
 N = len(responses)
@@ -138,11 +110,6 @@ with open('../../static/glove/glove.6B.300d.txt') as f:
 #print(type(glove_lookup['the']), glove_lookup['the'].shape, sum(glove_lookup['the']))
 '''
 
-#phi_c turns comments into features
-#phi_a combines ancestor features into summary
-#phi_r combines response features into summary
-#Note that this is for the "balanced" framing!
-#TODO: Initially ignoring ancestors, include them as another vector later
 def build_dataset(ancestors, responses, labels, phi_c, phi_a, phi_r, vectorizer=None, vectorize = True):
 	X = []
 	Y = []
@@ -174,13 +141,8 @@ def build_dataset(ancestors, responses, labels, phi_c, phi_a, phi_r, vectorizer=
 		response_pair_feats = [feat_matrix[:N], feat_matrix[N:]]
 	else:
 		response_pair_feats = feat_dicts
-		#print(response_pair_feats[0])
-
-	#assert len(feat_matrix == 2*N) 
-	#print((feat_matrix[0]), len(feat_matrix[1]))
 	
 	X = [phi_r((response_pair_feats[0][i], response_pair_feats[1][i])) for i in range(N)]
-	#X = list(map(phi_r, response_pair_feats))
 	
 	return {'X': np.array(X),
 			'y': np.array(Y),
@@ -206,15 +168,6 @@ unigram_dataset = build_dataset(train_ancestors, train_responses, train_labels, 
 unigram_dataset['X'].shape
 np.save('main-balanced-unigram-X.npy', unigram_dataset['X'])
 np.save('main-balanced-unigram-y.npy', unigram_dataset['y'])
-'''
-
-'''
-fasttext_dataset = build_dataset(
-	train_ancestors, train_responses, train_labels, fasttext_phi_c, None, concat_phi_r, None, False)
-
-fasttext_dataset['X'].shape
-np.save('main-balanced-fasttext-X.npy', fasttext_dataset['X'])
-np.save('main-balanced-fasttext-y.npy', fasttext_dataset['y'])
 '''
 
 def glove_phi_c(comment):
@@ -245,6 +198,7 @@ np.save('pol-balanced-elmo-X.npy', elmo_dataset['X'])
 np.save('pol-balanced-elmo-y.npy', elmo_dataset['y'])
 '''
 
+# Fit TorchShallowNeuralClassifier
 def fit_basic_rnn(X, y, hidden_dim, max_iter, hidden_activation, eta):
 	if hidden_dim is None:
 		hidden_dim = 50
@@ -259,11 +213,11 @@ def fit_basic_rnn(X, y, hidden_dim, max_iter, hidden_activation, eta):
 	mod.fit(X, y)
 	return mod
 
+# Fit logistic regression model
 def fit_maxent_classifier(X, y):
 	mod = LogisticRegression(fit_intercept = True)
 	mod.fit(X,y)
 	return mod
-
 
 #TorchShallowNeural Classifier w/ ELMo Embeddings
 elmo_X = np.load('main-balanced-elmo-X.npy')
@@ -334,26 +288,8 @@ print('Best dim: ',str(best_dim))
 print('Best activation: ', str(best_activation))
 print('Best eta: ', str(best_eta))
 print('Best iters: ', str(best_iters))
-#xval_model(fit_maxent_classifier, elmo_X, elmo_y, 5)
 
-'''
-#TorchShallowNeural Classifier w/ Unigram Features
-#unigram_X = np.load('pol-balanced-unigram-X.npy')
-#unigram_y = np.load('pol-balanced-unigram-y.npy')
-xval_model(fit_maxent_classifier, unigram_dataset['X'], unigram_dataset['y'], 5)
-
-
-#TorchShallowNeural Classifier w/ FastText Embeddings
-fasttext_X = np.load('pol-balanced-fasttext-X.npy')
-fasttext_y = np.load('pol-balanced-fasttext-y.npy')
-xval_model(fit_maxent_classifier, fasttext_X, fasttext_y, 5)
-
-#TorchShallowNeural Classifier w/ GloVe Embeddings
-glove_X = np.load('pol-balanced-glove-X.npy')
-glove_y = np.load('pol-balanced-glove-y.npy')
-xval_model(fit_maxent_classifier, glove_X, glove_y, 5)
-'''
-
+# Error Analysis
 missed_dev_indices = []
 missed_preds = []
 for i, pred in enumerate(predictions):

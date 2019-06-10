@@ -21,6 +21,7 @@ import random
 import torch.nn as nn
 import scipy.stats
 
+# Fit TorchShallowNeuralClassifier
 def fit_basic_rnn(X, y, hidden_dim, max_iter, hidden_activation, eta):
 	if hidden_dim is None:
 		hidden_dim = 50
@@ -35,11 +36,13 @@ def fit_basic_rnn(X, y, hidden_dim, max_iter, hidden_activation, eta):
 	mod.fit(X, y)
 	return mod
 
+# Fit Logistic Regression model
 def fit_maxent_classifier(X, y):
 	mod = LogisticRegression(fit_intercept = True)
 	mod.fit(X,y)
 	return mod
 
+# Compute 95% confidence interval assuming a normal distribution
 def mean_confidence_interval(data, confidence=0.95):
 	a = 1.0 * np.array(data)
 	n = len(a)
@@ -48,7 +51,7 @@ def mean_confidence_interval(data, confidence=0.95):
 	return float(m), float(m-h), float(m+h)
 
 
-#TorchShallowNeural Classifier w/ ELMo Embeddings
+# Load Data
 elmo_X = np.load('main-balanced-elmo-X.npy')
 elmo_y = np.load('main-balanced-elmo-y.npy')
 n = len(elmo_X)
@@ -59,6 +62,7 @@ iters = 250
 activation = nn.ReLU()
 eta = 0.01
 
+# Train 10 models, using the resulting F1 scores to produce a 95% confidence interval
 f1s = []
 for i in range(10):
 	train_indices = np.random.choice(range(n), round(0.95*n), replace = False)

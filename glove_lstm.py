@@ -156,17 +156,18 @@ best_eta = 0
 best_f1 = 0
 best_model = None
 
+# Hyperparameter search
 np.random.seed(1738)
-for i in range(1):
+for i in range(25):
     # Randomly select parameters
     hidden_size_ind = np.random.randint(0, len(hidden_sizes))
-    hidden_size = 50#hidden_sizes[hidden_size_ind]
+    hidden_size = hidden_sizes[hidden_size_ind]
     hidden_layer_ind = np.random.randint(0, len(num_layers))
-    layers = 1#num_layers[hidden_layer_ind]
+    layers = num_layers[hidden_layer_ind]
     epochs_ind = np.random.randint(0, len(num_epochs))
-    epochs = 5#num_epochs[epochs_ind]
+    epochs = num_epochs[epochs_ind]
     lr_ind = np.random.randint(0, len(learning_rates))
-    learning_rate = 0.01#learning_rates[lr_ind]
+    learning_rate = learning_rates[lr_ind]
 
     # Initialize model
     model = BiRNN(input_size, hidden_size, layers, num_classes)#.to(device)
@@ -212,6 +213,7 @@ for i in range(1):
     macro_f1 = report['macro avg']['f1-score']
     print('\nfit model ', str(i), ' out of 25')
 
+    # Update best model parameters if we achieve a new best F1 score
     if macro_f1 > best_f1:
         best_size = hidden_size
         best_layers = layers
@@ -228,6 +230,7 @@ print('Best num_epochs: ', str(best_epochs))
 print('Best learning_rate: ', str(best_eta))
 torch.save(best_model.state_dict(), 'model.ckpt')
 
+# Error analysis
 missed_dev_indices = []
 missed_preds = []
 for i, pred in enumerate(preds):

@@ -157,6 +157,7 @@ best_eta = 0
 best_f1 = 0
 best_model = None
 
+# Hyperparameter search
 np.random.seed(1738)
 for i in range(25):
     # Randomly select parameters
@@ -213,6 +214,7 @@ for i in range(25):
     macro_f1 = report['macro avg']['f1-score']
     print('\nfit model ', str(i), ' out of 25')
 
+    # Update best model parameters if we achieve a new best F1
     if macro_f1 > best_f1:
         best_size = hidden_size
         best_layers = layers
@@ -229,6 +231,7 @@ print('Best num_epochs: ', str(best_epochs))
 print('Best learning_rate: ', str(best_eta))
 torch.save(best_model.state_dict(), 'model.ckpt')
 
+# Erorr Analysis
 missed_dev_indices = []
 missed_preds = []
 for i, pred in enumerate(preds):

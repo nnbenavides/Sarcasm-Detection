@@ -36,6 +36,7 @@ class BiRNN(nn.Module):
         out = self.fc(out[-1, :, :])
         return out
 
+# Function to compute 95% confidence interval based on a normal distribution
 def mean_confidence_interval(data, confidence=0.95):
     a = 1.0 * np.array(data)
     n = len(a)
@@ -71,7 +72,7 @@ layers = 1
 epochs = 5
 learning_rate = 0.001
 
-
+# Train 10 models, use the resulting F1 scores to generate a 95% confidence interval
 f1s = []
 for k in range(10):
     # Randomly select training examples, map indicies for error analysis
