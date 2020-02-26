@@ -17,7 +17,7 @@ import nltk
 from collections import Counter
 
 # Read in Data
-pol_dir = '../SARC/2.0/main'
+pol_dir = '../SARC/2.0/pol'
 comments_file = os.path.join(pol_dir, 'comments.json')
 train_file = os.path.join(pol_dir, 'train-balanced.csv')
 
@@ -57,8 +57,8 @@ responses = train_responses
 #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Load data
-elmo_X = np.load('pol-balanced-elmo-X.npy')
-elmo_y = np.load('pol-balanced-elmo-y.npy')
+elmo_X = np.load('balanced-elmo-X.npy')
+elmo_y = np.load('balanced-elmo-y.npy')
 
 # Concatenate X and y matrices
 data = []
