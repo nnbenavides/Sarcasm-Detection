@@ -17,9 +17,9 @@ import nltk
 from collections import Counter
 
 # Read in Data
-pol_dir = '../SARC/2.0/pol'
-comments_file = os.path.join(pol_dir, 'comments.json')
-train_file = os.path.join(pol_dir, 'train-balanced.csv')
+data_dir = '../SARC/2.0/main'
+comments_file = os.path.join(data_dir, 'comments.json')
+train_file = os.path.join(data_dir, 'train-balanced.csv')
 
 with open(comments_file, 'r') as f:
     comments = json.load(f)
@@ -52,6 +52,8 @@ for pair in train_responses:
 train_vocab = Counter(train_vocab)
 print(len(train_vocab))
 responses = train_responses
+np.save('responses.npy', responses)
+print('quit now')
 
 # Device configuration
 #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
