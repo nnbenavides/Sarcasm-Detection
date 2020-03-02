@@ -48,9 +48,10 @@ num_classes = 2
 batch_size = 32
 
 # Hyperparameters to experiment with
-hidden_sizes = [64, 128, 256, 512]
+lstm_hidden_sizes = [64]#, 128, 256, 512]
+linear_hidden_sizes = [16, 32, 64, 128]
 num_layers = [1]
-num_epochs = [10, 20, 30, 50]
+num_epochs = [3]#[10, 20, 30, 50]
 learning_rates = [0.1, 0.01, 0.001]
 
 # Initialize data loaders
@@ -63,18 +64,20 @@ dev_loader = torch.utils.data.DataLoader(dataset=elmo_dev,
                                           shuffle=False)
 
 # initialize variables to track best model
-best_size = 0
+best_lstm_size = 0
 best_layers = 0
 best_epochs = 0
 best_eta = 0
 best_f1 = 0
 best_model = None
+if 'lin' in model_type:
+    best_linear_size = 0
 
 # Hyperparameter search
-for i in range(25):
+for i in range(1):
     # Randomly select parameters
-    hidden_size_ind = np.random.randint(0, len(hidden_sizes))
-    hidden_size = hidden_sizes[hidden_size_ind]
+    lstm_hidden_size_ind = np.random.randint(0, len(lstm_hidden_sizes))
+    lstm_hidden_size = lstm_hidden_sizes[lstm_hidden_size_ind]
     hidden_layer_ind = np.random.randint(0, len(num_layers))
     layers = num_layers[hidden_layer_ind]
     epochs_ind = np.random.randint(0, len(num_epochs))
@@ -82,12 +85,24 @@ for i in range(25):
     lr_ind = np.random.randint(0, len(learning_rates))
     learning_rate = learning_rates[lr_ind]
 
+    if 'lin' in model_type:
+        hidden_sizes = []
+        hidden_sizes.append(lstm_hidden_size)
+        linear_hidden = [x for x in linear_hidden_sizes if x < lstm_hidden_size]
+        linear_hidden_ind = np.random.randint(0, len(linear_hidden))
+        linear_hidden_size = linear_hidden_sizes[linear_hidden_ind]
+        hidden_sizes.append(linear_hidden_size)
+
     # Initialize model
     model = None
     if model_type == 'bilstm':
-        model = models.BiLSTM(input_size, hidden_size, layers, num_classes, device).to(device)
+        model = models.BiLSTM(input_size, lstm_hidden_size, layers, num_classes, device).to(device)
     elif model_type == 'bigru':
-        model = models.BiGRU(input_size, hidden_size, layers, num_classes, device).to(device)
+        model = models.BiGRU(input_size, lstm_hidden_size, layers, num_classes, device).to(device)
+    elif model_type == 'bilstm-lin':
+        model = models.BiLSTMLin(input_size, hidden_sizes, layers, num_classes, device).to(device)
+    elif model_type == 'bigru-lin':
+        model = models.BiGRULin(input_size, hidden_sizes, layers, num_classes, device).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -132,7 +147,9 @@ for i in range(25):
 
     # Update best model parameters if we achieve a new best F1
     if macro_f1 > best_f1:
-        best_size = hidden_size
+        best_lstm_size = lstm_hidden_size
+        if 'lin' in model_type:
+            best_linear_size = linear_hidden_size
         best_layers = layers
         best_epochs = epochs
         best_eta = learning_rate
@@ -141,7 +158,9 @@ for i in range(25):
         print('\nupdated best parameters')
 
 print('Best F1: ',str(best_f1))
-print('Best hidden_size: ',str(best_size))
+print('Best lstm_hidden_size: ',str(best_lstm_size))
+if 'lin' in model_type:
+    print('Best linear_hidden_size: ', str(best_linear_size))
 print('Best num_layers: ', str(best_layers))
 print('Best num_epochs: ', str(best_epochs))
 print('Best learning_rate: ', str(best_eta))
