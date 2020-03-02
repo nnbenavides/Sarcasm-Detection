@@ -1,6 +1,7 @@
 # Author: Nicholas Benavides
-# Code liberally inspired by and lifted from:
+# Model training loop inspired by and lifted from:
 # https://github.com/yunjey/pytorch-tutorial/blob/master/tutorials/02-intermediate/bidirectional_recurrent_neural_network/main.py
+# pre-processing, hyperparameter search, and code to save errors is our own
 
 # Imports
 import torch 
