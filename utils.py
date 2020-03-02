@@ -5,7 +5,17 @@ from collections import Counter
 import csv
 import nltk
 import numpy as np
+import argparse
 
+# Command line interface that accepts a model type and file to write errors to
+def clip():
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-m', '--model', type = str, help = 'model type')
+	parser.add_argument('-e', '--error_file', type = str, help = 'path to save examples for error analysis')
+	args = parser.parse_args()
+	return args.model, args.error_file
+
+# Writes dev set prediction errors to file path for further analysis
 def write_errors(path, preds, actuals, index_map_dev):
 	missed_dev_indices = []
 	missed_preds = []
@@ -36,6 +46,8 @@ def write_errors(path, preds, actuals, index_map_dev):
 		        file.write('Actual sarcastic comment: ' + str(responses[missed_og_index][1])+ '\n')
 		        file.write('Word count: ' + str(len((responses[missed_og_index][1]).split()))+ '\n')
 
+# Selects indices from the original dataset for training, builds a map to go from indices in the training set
+# to indices in the original dataset, which is used for error analysis
 def get_training_indices(data, n, frac = 0.95, seed = False):
 	if seed:
 		np.random.seed(224)
@@ -52,6 +64,8 @@ def get_training_indices(data, n, frac = 0.95, seed = False):
 	print('size of training set:', str(len(index_map_train)))
 	return elmo_train, index_map_train, train_indices
 
+# Selects indices from the original dataset for development, builds a map to go from indices in the dev set
+# to indices in the original dataset, which is used for error analysis
 def get_dev_indices(data, train_indices, n, frac = 0.5):
 	other_indices = list(set(range(n)) - set(train_indices))
 	dev_indices = np.random.choice(other_indices, int(round(0.5*len(other_indices))), replace = False)
@@ -66,6 +80,8 @@ def get_dev_indices(data, train_indices, n, frac = 0.5):
 	print('size of dev set:', str(len(index_map_dev)))
 	return elmo_dev, index_map_dev, dev_indices, other_indices
 
+# Selects indices from the original dataset for testing, builds a map to go from indices in the test set
+# to indices in the original dataset, which is used for error analysis
 def get_test_indices(data, other_indices, dev_indices):
 	test_indices = list(set(other_indices) - set(dev_indices))
 	elmo_test = [data[i] for i in test_indices]
@@ -76,11 +92,10 @@ def get_test_indices(data, other_indices, dev_indices):
 	print('size of test set:', str(len(index_map_test)))
 	return elmo_test, index_map_test
 
-
-
+# processes the raw text into pairs of sentences, which are used as inputs for generating the word embeddings
+# and pulling example comments for error analysis
 def get_textual_examples(data_dir):
 	# Read in Data
-	print('entering util function')
 	comments_file = os.path.join(data_dir, 'comments.json')
 	train_file = os.path.join(data_dir, 'train-balanced.csv')
 

@@ -15,6 +15,8 @@ from utils import *
 #Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+model_type, error_file = clip()
+
 # Load data
 elmo_X = np.load('balanced-elmo-X.npy')
 elmo_y = np.load('balanced-elmo-y.npy')
@@ -81,7 +83,11 @@ for i in range(25):
     learning_rate = learning_rates[lr_ind]
 
     # Initialize model
-    model = models.BiLSTM(input_size, hidden_size, layers, num_classes, device).to(device)
+    model = None
+    if model_type == 'bilstm':
+        model = models.BiLSTM(input_size, hidden_size, layers, num_classes, device).to(device)
+    elif model_type == 'bigru':
+        model = models.BiGRU(input_size, hidden_size, layers, num_classes, device).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -142,4 +148,4 @@ print('Best learning_rate: ', str(best_eta))
 #torch.save(best_model.state_dict(), 'model.ckpt')
 
 # Error Analysis
-write_errors('errors.txt', preds, actuals, index_map_dev)
+write_errors(error_file, preds, actuals, index_map_dev)
