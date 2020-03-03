@@ -3,7 +3,7 @@ import torch.nn as nn
 
 # Bidirectional recurrent neural network (many-to-one)
 class BiLSTM(nn.Module):
-	def __init__(self, input_size, hidden_size, num_layers, num_classes, device):
+	def __init__(self, input_size, hidden_size, num_layers, num_classes, device, dropout = 0.0):
 		super(BiLSTM, self).__init__()
 		self.hidden_size = hidden_size
 		self.num_layers = num_layers
@@ -24,7 +24,7 @@ class BiLSTM(nn.Module):
 		return out
 
 class BiGRU(nn.Module):
-	def __init__(self, input_size, hidden_size, num_layers, num_classes, device):
+	def __init__(self, input_size, hidden_size, num_layers, num_classes, device, dropout = 0.0):
 		super(BiGRU, self).__init__()
 		self.hidden_size = hidden_size
 		self.num_layers = num_layers
@@ -43,7 +43,7 @@ class BiGRU(nn.Module):
 		return out
 
 class BiLSTMLin(nn.Module):
-	def __init__(self, input_size, hidden_sizes, num_layers, num_classes, device):
+	def __init__(self, input_size, hidden_sizes, num_layers, num_classes, device, dropout = 0.0):
 		super(BiLSTMLin, self).__init__()
 		self.lstm_hidden_size = hidden_sizes[0]
 		self.linear_hidden_size = hidden_sizes[1]
@@ -67,7 +67,7 @@ class BiLSTMLin(nn.Module):
 		return out
 
 class BiGRULin(nn.Module):
-	def __init__(self, input_size, hidden_sizes, num_layers, num_classes, device):
+	def __init__(self, input_size, hidden_sizes, num_layers, num_classes, device, dropout = 0.0):
 		super(BiGRULin, self).__init__()
 		self.lstm_hidden_size = hidden_sizes[0]
 		self.linear_hidden_size = hidden_sizes[1]
