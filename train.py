@@ -49,10 +49,10 @@ num_classes = 2
 batch_size = 32
 
 # Hyperparameters to experiment with
-lstm_hidden_sizes = [64]#, 128, 256, 512]
+lstm_hidden_sizes = [64, 128, 256, 512]
 linear_hidden_sizes = [16, 32, 64, 128]
-num_layers = [1]
-num_epochs = [3]#[10, 20, 30, 50]
+num_layers = [2]
+num_epochs = [10, 20, 30, 50]
 learning_rates = [0.1, 0.01, 0.001]
 
 # Initialize data loaders
@@ -75,7 +75,7 @@ if 'lin' in model_type:
     best_linear_size = 0
 
 # Hyperparameter search
-for i in range(1):
+for i in range(25):
     # Randomly select parameters
     lstm_hidden_size_ind = np.random.randint(0, len(lstm_hidden_sizes))
     lstm_hidden_size = lstm_hidden_sizes[lstm_hidden_size_ind]
