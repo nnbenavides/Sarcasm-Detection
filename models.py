@@ -3,12 +3,12 @@ import torch.nn as nn
 
 # Bidirectional recurrent neural network (many-to-one)
 class BiLSTM(nn.Module):
-	def __init__(self, input_size, hidden_size, num_layers, num_classes, device, dropout = 0.0):
+	def __init__(self, input_size, hidden_size, num_layers, num_classes, device, lstm_dropout = 0.0):
 		super(BiLSTM, self).__init__()
 		self.hidden_size = hidden_size
 		self.num_layers = num_layers
 		self.device = device
-		self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=False, bidirectional=True)
+		self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=False, bidirectional=True, dropout = lstm_dropout)
 		self.fc = nn.Linear(hidden_size*2, num_classes)  # 2 for bidirection
 	
 	def forward(self, x):
@@ -24,12 +24,12 @@ class BiLSTM(nn.Module):
 		return out
 
 class BiGRU(nn.Module):
-	def __init__(self, input_size, hidden_size, num_layers, num_classes, device, dropout = 0.0):
+	def __init__(self, input_size, hidden_size, num_layers, num_classes, device, gru_dropout = 0.0):
 		super(BiGRU, self).__init__()
 		self.hidden_size = hidden_size
 		self.num_layers = num_layers
 		self.device = device
-		self.gru = nn.GRU(input_size, hidden_size, num_layers, batch_first=False, bidirectional=True)
+		self.gru = nn.GRU(input_size, hidden_size, num_layers, batch_first=False, bidirectional=True, dropout = gru_dropout)
 		self.fc = nn.Linear(hidden_size*2, num_classes)  # 2 for bidirection
 	
 	def forward(self, x):
@@ -43,13 +43,13 @@ class BiGRU(nn.Module):
 		return out
 
 class BiLSTMLin(nn.Module):
-	def __init__(self, input_size, hidden_sizes, num_layers, num_classes, device, dropout = 0.0):
+	def __init__(self, input_size, hidden_sizes, num_layers, num_classes, device, lstm_dropout = 0.0):
 		super(BiLSTMLin, self).__init__()
 		self.lstm_hidden_size = hidden_sizes[0]
 		self.linear_hidden_size = hidden_sizes[1]
 		self.num_layers = num_layers
 		self.device = device
-		self.lstm = nn.LSTM(input_size, self.lstm_hidden_size, num_layers, batch_first=False, bidirectional=True)
+		self.lstm = nn.LSTM(input_size, self.lstm_hidden_size, num_layers, batch_first=False, bidirectional=True, dropout = lstm_dropout)
 		self.fc1 = nn.Linear(self.lstm_hidden_size*2, self.linear_hidden_size)
 		self.fc2 = nn.Linear(self.linear_hidden_size, num_classes)  # 2 for bidirection
 	
@@ -67,13 +67,13 @@ class BiLSTMLin(nn.Module):
 		return out
 
 class BiGRULin(nn.Module):
-	def __init__(self, input_size, hidden_sizes, num_layers, num_classes, device, dropout = 0.0):
+	def __init__(self, input_size, hidden_sizes, num_layers, num_classes, device, gru_dropout = 0.0):
 		super(BiGRULin, self).__init__()
 		self.lstm_hidden_size = hidden_sizes[0]
 		self.linear_hidden_size = hidden_sizes[1]
 		self.num_layers = num_layers
 		self.device = device
-		self.gru = nn.GRU(input_size, self.lstm_hidden_size, num_layers, batch_first=False, bidirectional=True)
+		self.gru = nn.GRU(input_size, self.lstm_hidden_size, num_layers, batch_first=False, bidirectional=True, dropout = gru_dropout)
 		self.fc1 = nn.Linear(self.lstm_hidden_size*2, self.linear_hidden_size)
 		self.fc2 = nn.Linear(self.linear_hidden_size, num_classes)  # 2 for bidirection
 	
