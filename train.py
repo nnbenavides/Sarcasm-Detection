@@ -51,9 +51,11 @@ batch_size = 32
 # Hyperparameters to experiment with
 lstm_hidden_sizes = [64, 128, 256, 512]
 linear_hidden_sizes = [16, 32, 64, 128]
-num_layers = [2]
+num_layers = [1]
 num_epochs = [10, 20, 30, 50]
 learning_rates = [0.1, 0.01, 0.001]
+rnn_dropout = 0.0
+other_dropout = 0.2
 
 # Initialize data loaders
 train_loader = torch.utils.data.DataLoader(dataset=elmo_train,
@@ -97,13 +99,13 @@ for i in range(25):
     # Initialize model
     model = None
     if model_type == 'bilstm':
-        model = models.BiLSTM(input_size, lstm_hidden_size, layers, num_classes, device).to(device)
+        model = models.BiLSTM(input_size, lstm_hidden_size, layers, num_classes, device, rnn_dropout, other_dropout).to(device)
     elif model_type == 'bigru':
-        model = models.BiGRU(input_size, lstm_hidden_size, layers, num_classes, device).to(device)
+        model = models.BiGRU(input_size, lstm_hidden_size, layers, num_classes, device, rnn_dropout, other_dropout).to(device)
     elif model_type == 'bilstm-lin':
-        model = models.BiLSTMLin(input_size, hidden_sizes, layers, num_classes, device).to(device)
+        model = models.BiLSTMLin(input_size, hidden_sizes, layers, num_classes, device, rnn_dropout, other_dropout).to(device)
     elif model_type == 'bigru-lin':
-        model = models.BiGRULin(input_size, hidden_sizes, layers, num_classes, device).to(device)
+        model = models.BiGRULin(input_size, hidden_sizes, layers, num_classes, device, rnn_dropout, other_dropout).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
