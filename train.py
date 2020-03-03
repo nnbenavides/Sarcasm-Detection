@@ -20,7 +20,7 @@ model_type, error_file = clip()
 
 # Load data
 elmo_X = np.load('balanced-elmo-X.npy')
-elmo_y = np.load('balanced-elmo-y.npy')
+elmo_y = np.load('balanced-elmo-Y.npy')
 
 # Concatenate X and y matrices
 data = []
