@@ -19,8 +19,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model_type, error_file = clip()
 
 # Load data
-elmo_X = np.load('balanced-elmo-X.npy')
-elmo_y = np.load('balanced-elmo-Y.npy')
+elmo_X = np.load('main-balanced-elmo-X.npy')
+elmo_y = np.load('main-balanced-elmo-Y.npy')
 
 # Concatenate X and y matrices
 data = []
@@ -53,7 +53,7 @@ lstm_hidden_sizes = [64, 128, 256, 512]
 linear_hidden_sizes = [16, 32, 64, 128]
 num_layers = [1]
 num_epochs = [10, 20, 30, 50]
-learning_rates = [0.1, 0.01, 0.001]
+learning_rates = [0.0001, 0.0005, 0.001]#[0.1, 0.01, 0.001]
 rnn_dropout = 0.0
 other_dropout = 0.2
 
