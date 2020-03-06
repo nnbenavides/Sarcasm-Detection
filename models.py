@@ -165,6 +165,7 @@ class BiGRUAttn(nn.Module):
 		out = self.fc(out)
 		return out
 
+# Code for attention layer inspired by https://gist.githubusercontent.com/MLWhiz/1ac0841f0333a97396d300b8f4c247c9/raw/aa352c54d00f801ea1579790652ff8ebb160b01b/pytorch_attention.py
 class Attention(nn.Module):
     def __init__(self, feature_dim, **kwargs):
         super(Attention, self).__init__(**kwargs)
