@@ -4,7 +4,7 @@
 # pre-processing, hyperparameter search, and code to save errors is our own
 
 # Imports
-import torch 
+import torch
 import torch.nn as nn
 from torch.utils import data
 import numpy as np
@@ -19,8 +19,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model_type, error_file = clip()
 
 # Load data
-elmo_X = np.load('main-balanced-elmo-X.npy')
-elmo_y = np.load('main-balanced-elmo-Y.npy')
+elmo_X = np.load('balanced-elmo-X.npy')
+elmo_y = np.load('balanced-elmo-Y.npy')
 
 # Concatenate X and y matrices
 data = []
@@ -52,18 +52,18 @@ batch_size = 32
 lstm_hidden_sizes = [64, 128, 256, 512]
 linear_hidden_sizes = [16, 32, 64, 128]
 num_layers = [1]
-num_epochs = [10, 20, 30, 50]
-learning_rates = [0.0001, 0.0005, 0.001]#[0.1, 0.01, 0.001]
+num_epochs = [10] #20, 30, 50]
+learning_rates = [0.001] # [0.0001, 0.0005, 0.001]#[0.1, 0.01, 0.001]
 rnn_dropout = 0.0
 other_dropout = 0.2
 
 # Initialize data loaders
 train_loader = torch.utils.data.DataLoader(dataset=elmo_train,
-                                           batch_size=batch_size, 
+                                           batch_size=batch_size,
                                            shuffle=True)
 
 dev_loader = torch.utils.data.DataLoader(dataset=elmo_dev,
-                                          batch_size=batch_size, 
+                                          batch_size=batch_size,
                                           shuffle=False)
 
 # initialize variables to track best model
@@ -77,7 +77,7 @@ if 'lin' in model_type:
     best_linear_size = 0
 
 # Hyperparameter search
-for i in range(25):
+for i in range(1):
     # Randomly select parameters
     lstm_hidden_size_ind = np.random.randint(0, len(lstm_hidden_sizes))
     lstm_hidden_size = lstm_hidden_sizes[lstm_hidden_size_ind]
@@ -106,6 +106,10 @@ for i in range(25):
         model = models.BiLSTMLin(input_size, hidden_sizes, layers, num_classes, device, rnn_dropout, other_dropout).to(device)
     elif model_type == 'bigru-lin':
         model = models.BiGRULin(input_size, hidden_sizes, layers, num_classes, device, rnn_dropout, other_dropout).to(device)
+    elif model_type == 'bilstm-attn':
+        model = models.BiLSTMAttn(input_size, lstm_hidden_size, layers, num_classes, device, rnn_dropout, other_dropout).to(device)
+    elif model_type == 'bigru-attn':
+        model = models.BiGRUAttn(input_size, lstm_hidden_size, layers, num_classes, device, rnn_dropout, other_dropout).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -113,19 +117,19 @@ for i in range(25):
     total_step = len(train_loader)
     for epoch in range(epochs):
         for j, (sequences, labels) in enumerate(train_loader):
-            
+
             sequences = sequences.view(sequences.shape[0], input_size).to(device)
             labels = labels.to(device)
-            
+
             # Forward pass
             outputs = model(sequences)
             loss = criterion(outputs, labels)
-            
+
             # Backward and optimize
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            
+
         print ('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, epochs, loss.item()))
 
     # Format predictions so we can compute macro avg F1 score
