@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 # Bidirectional recurrent neural network (many-to-one)
 class BiLSTM(nn.Module):

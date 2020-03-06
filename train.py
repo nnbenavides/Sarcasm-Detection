@@ -52,10 +52,10 @@ batch_size = 32
 lstm_hidden_sizes = [64, 128, 256, 512]
 linear_hidden_sizes = [16, 32, 64, 128]
 num_layers = [1]
-num_epochs = [10] #20, 30, 50]
-learning_rates = [0.001] # [0.0001, 0.0005, 0.001]#[0.1, 0.01, 0.001]
+num_epochs = [10, 20, 30]
+learning_rates = [0.0001, 0.0005, 0.001] #[0.1, 0.01, 0.001]
 rnn_dropout = 0.0
-other_dropout = 0.2
+other_dropout = 0.0
 
 # Initialize data loaders
 train_loader = torch.utils.data.DataLoader(dataset=elmo_train,
@@ -77,7 +77,7 @@ if 'lin' in model_type:
     best_linear_size = 0
 
 # Hyperparameter search
-for i in range(1):
+for i in range(25):
     # Randomly select parameters
     lstm_hidden_size_ind = np.random.randint(0, len(lstm_hidden_sizes))
     lstm_hidden_size = lstm_hidden_sizes[lstm_hidden_size_ind]
