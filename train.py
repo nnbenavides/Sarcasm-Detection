@@ -52,8 +52,8 @@ batch_size = 32
 lstm_hidden_sizes = [64, 128, 256, 512]
 linear_hidden_sizes = [16, 32, 64, 128]
 num_layers = [1]
-num_epochs = [10, 20, 30]
-learning_rates = [0.0001, 0.0005, 0.001] #[0.1, 0.01, 0.001]
+num_epochs = [10, 20]
+learning_rates = [0.0001, 0.0005, 0.001]
 rnn_dropout = 0.0
 other_dropout = 0.0
 
@@ -110,6 +110,8 @@ for i in range(25):
         model = models.BiLSTMAttn(input_size, lstm_hidden_size, layers, num_classes, device, rnn_dropout, other_dropout).to(device)
     elif model_type == 'bigru-attn':
         model = models.BiGRUAttn(input_size, lstm_hidden_size, layers, num_classes, device, rnn_dropout, other_dropout).to(device)
+    elif model_type == 'bigru-attn-lin':
+        model = models.BiGRULinAttn(input_size, hidden_sizes, layers, num_classes, device, rnn_dropout, other_dropout).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
