@@ -68,7 +68,7 @@ def get_training_indices(data, n, frac = 0.95, seed = False):
 # to indices in the original dataset, which is used for error analysis
 def get_dev_indices(data, train_indices, n, frac = 0.5):
 	other_indices = list(set(range(n)) - set(train_indices))
-	dev_indices = np.random.choice(other_indices, int(round(0.5*len(other_indices))), replace = False)
+	dev_indices = np.random.choice(other_indices, int(round(frac*len(other_indices))), replace = False)
 	elmo_dev = []
 	for i in other_indices:
 	    if i in dev_indices:
