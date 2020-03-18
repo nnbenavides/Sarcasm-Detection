@@ -1,3 +1,4 @@
+# Imports
 import allennlp
 import os
 import csv
@@ -9,50 +10,21 @@ import numpy as np
 from allennlp.commands.elmo import ElmoEmbedder
 from collections import defaultdict
 import math
+from utils import *
 
-print("starting elmo embedding script")
 # Read in Data
-data_dir = '../SARC/2.0/main'
-comments_file = os.path.join(data_dir, 'comments.json')
-train_file = os.path.join(data_dir, 'train-balanced.csv')
-print("read in data")
-with open(comments_file, 'r') as f:
-    comments = json.load(f)
-
-print("starting to format data")
-# Format data
-train_ancestors = []
-train_responses = []
-train_labels = []
-lower = True
-with open(train_file, 'r') as f:
-    reader = csv.reader(f, delimiter='|')
-    for row in reader:
-        ancestors = row[0].split(' ')
-        responses = row[1].split(' ')
-        labels = row[2].split(' ')
-        if lower:
-            train_ancestors.append([comments[r]['text'].lower() for r in ancestors])
-            train_responses.append([comments[r]['text'].lower() for r in responses])
-        else:
-            train_ancestors.append([comments[r]['text'] for r in ancestors])
-            train_responses.append([comments[r]['text'] for r in responses])
-        train_labels.append(labels)
-
-train_vocab = defaultdict(int)
-for pair in train_responses:
-    for comment in pair:
-        for w in nltk.word_tokenize(comment):
-            train_vocab[w] += 1
-train_vocab = Counter(train_vocab)
-print(len(train_vocab))
-responses = train_responses
+print("starting elmo embedding script")
+responses = get_textual_examples('../SARC/2.0/main')
 print(len(responses))
 print("done formatting data")
+
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+# Initialize ElmoEmbedder
 elmo = ElmoEmbedder()
+
+# Run batches of sentences through the ElmoEmbedder
 print("starting to run batches of examples through the ElmoEmbedder")
 batch_size = 64
 num_batches = math.ceil(len(responses)/batch_size)

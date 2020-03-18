@@ -1,7 +1,8 @@
+# Imports
 import torch
 import torch.nn as nn
 
-# Bidirectional recurrent neural network (many-to-one)
+# Bidirectional LSTM
 class BiLSTM(nn.Module):
 	def __init__(self, input_size, hidden_size, num_layers, num_classes, device, lstm_dropout = 0.0, other_dropout = 0.0):
 		super(BiLSTM, self).__init__()
@@ -11,22 +12,23 @@ class BiLSTM(nn.Module):
 		self.p_dropout = other_dropout
 		self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=False, bidirectional=True, dropout = lstm_dropout)
 		self.dropout = nn.Dropout(other_dropout)
-		self.fc = nn.Linear(hidden_size*2, num_classes)  # 2 for bidirection
+		self.fc = nn.Linear(hidden_size*2, num_classes)  # 2 for bidirectional
 
 	def forward(self, x):
 		# Set initial states
-		h0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).float().to(self.device) # 2 for bidirection
+		h0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).float().to(self.device) # 2 for bidirectional
 		c0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).float().to(self.device)
 
 		# Forward propagate LSTM
 		x = x.unsqueeze(0).float()
-		out, _ = self.lstm(x, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size*2)
+		out, _ = self.lstm(x, (h0, c0)) 
 		if self.p_dropout > 0.0:
 			out = self.dropout(out)
 		# Decode the hidden state of the last time step
 		out = self.fc(out[-1, :, :])
 		return out
 
+# Bidirectional GRU
 class BiGRU(nn.Module):
 	def __init__(self, input_size, hidden_size, num_layers, num_classes, device, gru_dropout = 0.0, other_dropout = 0.0):
 		super(BiGRU, self).__init__()
@@ -36,20 +38,21 @@ class BiGRU(nn.Module):
 		self.p_dropout = other_dropout
 		self.gru = nn.GRU(input_size, hidden_size, num_layers, batch_first=False, bidirectional=True, dropout = gru_dropout)
 		self.dropout = nn.Dropout(other_dropout)
-		self.fc = nn.Linear(hidden_size*2, num_classes)  # 2 for bidirection
+		self.fc = nn.Linear(hidden_size*2, num_classes)  # 2 for bidirectional
 
 	def forward(self, x):
 		# Set initial states
-		h0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).float().to(self.device) # 2 for bidirection
+		h0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).float().to(self.device) # 2 for bidirectional
 		# Forward propagate LSTM
 		x = x.unsqueeze(0).float()
-		out, _ = self.gru(x, h0)  # out: tensor of shape (batch_size, seq_length, hidden_size*2)
+		out, _ = self.gru(x, h0)
 		if self.p_dropout > 0.0:
 			out = self.dropout(out)
 		# Decode the hidden state of the last time step
 		out = self.fc(out[-1, :, :])
 		return out
 
+# Bidirectional LSTM with an extra linear layer
 class BiLSTMLin(nn.Module):
 	def __init__(self, input_size, hidden_sizes, num_layers, num_classes, device, lstm_dropout = 0.0, other_dropout = 0.0):
 		super(BiLSTMLin, self).__init__()
@@ -61,11 +64,11 @@ class BiLSTMLin(nn.Module):
 		self.fc1 = nn.Linear(self.lstm_hidden_size*2, self.linear_hidden_size)
 		self.dropout = nn.Dropout(other_dropout)
 		self.p_dropout = other_dropout
-		self.fc2 = nn.Linear(self.linear_hidden_size, num_classes)  # 2 for bidirection
+		self.fc2 = nn.Linear(self.linear_hidden_size, num_classes)  # 2 for bidirectional
 
 	def forward(self, x):
 		# Set initial states
-		h0 = torch.zeros(self.num_layers*2, x.size(0), self.lstm_hidden_size).float().to(self.device) # 2 for bidirection
+		h0 = torch.zeros(self.num_layers*2, x.size(0), self.lstm_hidden_size).float().to(self.device) # 2 for bidirectional
 		c0 = torch.zeros(self.num_layers*2, x.size(0), self.lstm_hidden_size).float().to(self.device)
 
 		# Forward propagate LSTM
@@ -78,6 +81,7 @@ class BiLSTMLin(nn.Module):
 		out = self.fc2(out[-1, :, :])
 		return out
 
+# Bidirectional GRU with an extra linear layer
 class BiGRULin(nn.Module):
 	def __init__(self, input_size, hidden_sizes, num_layers, num_classes, device, gru_dropout = 0.0, other_dropout = 0.0):
 		super(BiGRULin, self).__init__()
@@ -89,15 +93,15 @@ class BiGRULin(nn.Module):
 		self.fc1 = nn.Linear(self.lstm_hidden_size*2, self.linear_hidden_size)
 		self.dropout = nn.Dropout(other_dropout)
 		self.p_dropout = other_dropout
-		self.fc2 = nn.Linear(self.linear_hidden_size, num_classes)  # 2 for bidirection
+		self.fc2 = nn.Linear(self.linear_hidden_size, num_classes)  # 2 for bidirectional
 
 	def forward(self, x):
 		# Set initial states
-		h0 = torch.zeros(self.num_layers*2, x.size(0), self.lstm_hidden_size).float().to(self.device) # 2 for bidirection
+		h0 = torch.zeros(self.num_layers*2, x.size(0), self.lstm_hidden_size).float().to(self.device) # 2 for bidirectional
 
 		# Forward propagate LSTM
 		x = x.unsqueeze(0).float()
-		out, _ = self.gru(x, h0)  # out: tensor of shape (batch_size, seq_length, hidden_size*2)
+		out, _ = self.gru(x, h0)
 		out = self.fc1(out)
 		if self.p_dropout > 0.0:
 			out = self.dropout(out)
@@ -105,6 +109,7 @@ class BiGRULin(nn.Module):
 		out = self.fc2(out[-1, :, :])
 		return out
 
+# Bidirectional LSTM with an Attention Layer
 class BiLSTMAttn(nn.Module):
 	def __init__(self, input_size, hidden_size, num_layers, num_classes, device, lstm_dropout = 0.0, other_dropout = 0.0):
 		super(BiLSTMAttn, self).__init__()
@@ -115,17 +120,17 @@ class BiLSTMAttn(nn.Module):
 		self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=False, bidirectional=True, dropout = lstm_dropout)
 		self.attention_layer = Attention(hidden_size*2)
 		self.dropout = nn.Dropout(other_dropout)
-		self.fc = nn.Linear(hidden_size*2, num_classes)  # 2 for bidirection
+		self.fc = nn.Linear(hidden_size*2, num_classes)  # 2 for bidirectional
 
 	def forward(self, x):
 		# Set initial states
-		h0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).float().to(self.device) # 2 for bidirection
+		h0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).float().to(self.device) # 2 for bidirectional
 		c0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).float().to(self.device)
 
 		# Forward propagate LSTM
 		x = x.unsqueeze(0).float()
-		out, _ = self.lstm(x, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size*2)
-		out = out.permute(1, 0, 2) # batch first
+		out, _ = self.lstm(x, (h0, c0))
+		out = out.permute(1, 0, 2) # batch_size first
 
 		out = self.attention_layer(out)
 
@@ -134,9 +139,9 @@ class BiLSTMAttn(nn.Module):
 
 		# Decode the hidden state of the last time step
 		out = self.fc(out)
-
 		return out
 
+# Bidirectional GRU with an Attention Layer
 class BiGRUAttn(nn.Module):
 	def __init__(self, input_size, hidden_size, num_layers, num_classes, device, gru_dropout = 0.0, other_dropout = 0.0):
 		super(BiGRUAttn, self).__init__()
@@ -147,15 +152,15 @@ class BiGRUAttn(nn.Module):
 		self.gru = nn.GRU(input_size, hidden_size, num_layers, batch_first=False, bidirectional=True, dropout = gru_dropout)
 		self.attention_layer = Attention(hidden_size*2)
 		self.dropout = nn.Dropout(other_dropout)
-		self.fc = nn.Linear(hidden_size*2, num_classes)  # 2 for bidirection
+		self.fc = nn.Linear(hidden_size*2, num_classes)  # 2 for bidirectional
 
 	def forward(self, x):
 		# Set initial states
-		h0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).float().to(self.device) # 2 for bidirection
+		h0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).float().to(self.device) # 2 for bidirectional
 		# Forward propagate LSTM
 		x = x.unsqueeze(0).float()
-		out, _ = self.gru(x, h0)  # out: tensor of shape (batch_size, seq_length, hidden_size*2)
-		out = out.permute(1, 0, 2) # batch first
+		out, _ = self.gru(x, h0)
+		out = out.permute(1, 0, 2) # batch_size first
 
 		out = self.attention_layer(out)
 
@@ -165,6 +170,7 @@ class BiGRUAttn(nn.Module):
 		out = self.fc(out)
 		return out
 
+# Bidirectional GRU with an Attention layer and an extra linear layer
 class BiGRULinAttn(nn.Module):
 	def __init__(self, input_size, hidden_sizes, num_layers, num_classes, device, gru_dropout = 0.0, other_dropout = 0.0):
 		super(BiGRULinAttn, self).__init__()
@@ -177,16 +183,16 @@ class BiGRULinAttn(nn.Module):
 		self.fc1 = nn.Linear(self.lstm_hidden_size*2, self.linear_hidden_size)
 		self.dropout = nn.Dropout(other_dropout)
 		self.p_dropout = other_dropout
-		self.fc2 = nn.Linear(self.linear_hidden_size, num_classes)  # 2 for bidirection
+		self.fc2 = nn.Linear(self.linear_hidden_size, num_classes)  # 2 for bidirectional
 
 	def forward(self, x):
 		# Set initial states
-		h0 = torch.zeros(self.num_layers*2, x.size(0), self.lstm_hidden_size).float().to(self.device) # 2 for bidirection
+		h0 = torch.zeros(self.num_layers*2, x.size(0), self.lstm_hidden_size).float().to(self.device) # 2 for bidirectional
 
 		# Forward propagate LSTM
 		x = x.unsqueeze(0).float()
-		out, _ = self.gru(x, h0)  # out: tensor of shape (batch_size, seq_length, hidden_size*2)
-		out = out.permute(1, 0, 2) # batch first
+		out, _ = self.gru(x, h0)
+		out = out.permute(1, 0, 2) # batch_size first
 		out = self.attention_layer(out)
 		out = self.fc1(out)
 		if self.p_dropout > 0.0:
