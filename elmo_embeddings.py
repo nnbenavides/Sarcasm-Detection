@@ -55,10 +55,10 @@ for i in range(num_batches):
     example_embeddings = [first_sentence_embeddings[k] + second_sentence_embeddings[k] for k in range(len(first_sentence_embeddings))]
     all_example_embeddings += example_embeddings
 print("starting to save elmo-X file")
-np.save('main-balanced-elmo-X.npy', all_example_embeddings)
+np.save('balanced-elmo-X.npy', all_example_embeddings)
 print("saved elmo-X file")
 labels = [int(x[0]) for x in train_labels]
 print("starting to save elmo-Y file")
-np.save('main-balanced-elmo-Y.npy', labels)
+np.save('balanced-elmo-Y.npy', labels)
 print("saved elmo-Y file")
 

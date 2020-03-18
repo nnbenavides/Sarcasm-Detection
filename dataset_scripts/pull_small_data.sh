@@ -20,3 +20,5 @@ unzip glove.6B.zip
 rm glove.6B.zip
 mkdir ../static/glove
 mv glove*.txt ../static/glove/
+
+mv SARC ../SARC

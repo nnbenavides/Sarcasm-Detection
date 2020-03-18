@@ -51,3 +51,5 @@ mv train-unbalanced.csv SARC/2.0/main/
 wget http://nlp.cs.princeton.edu/DisC/amazon_glove1600.txt.bz2
 bzip2 -d amazon_glove1600.txt.bz2
 mv amazon_glove1600.txt ../static
+
+mv SARC ../SARC
