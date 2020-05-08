@@ -1,0 +1,3 @@
+*.py linguist-language=python
+old_project/*.py linguist-language=python
+old_project/*.ipynb linguist-documentation
